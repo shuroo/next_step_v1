@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Welcome{% endblock %}</title>
+</head>
+<body>
+
+<h2>ברוך\ה הבא\ה, {{ username }}!</h2>
+<p>אנא בחר.י מהתפריט:</p>
+<body>
+<nav>
+        <a href="{{ url_for('home') }}">דף הבית</a> |
+        <a href="{{ url_for('about') }}">אודות</a> |
+        <a href="{{ url_for('contact') }}">צור קשר</a>
+       <a href="{{ url_for('resolve', username=username) }}">שאלה חדשה</a>
+      <a href="{{ url_for('resolve', username=username) }}">מבחן חדש</a>
+    <a href="#">היסטוריית משתמש</a>
+    <a href="#">הגרל שאלה</a>
+    <a href="#">צור שאלה חדשה</a>
+    <a href="#">נושאי הלימוד</a>
+    <a href="#">חיפוש שאלה</a>
+    <a href="#">חיפוש בחינה</a>
+    </nav>
+    <hr>
+    <div>
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
