@@ -7,6 +7,7 @@ from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from dotenv import load_dotenv
 from openai import OpenAI
+import pdb
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -107,14 +108,18 @@ def get_feedback(exercise, user_answer):
         api_key=api_key,
     )
 
-    prompt = f" האם {exercise} == {user_answer}  במידה ולא, הסבר מה הטעות ?"
+    prompt = f" בהינתן התרגיל - {exercise} והתשובה של המשתמש -  {user_answer} ענה במספר בלבד , תן לו ציון בין 0 ל 100"
+    print(f"prompt::::{prompt}")
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        #model="gpt-3.5-turbo",
+        model="gpt-4",
         messages=[{"role": "user", "content": prompt}]
     )
 
     feedback = response.choices[0].message.content.strip()
-    return feedback
+    score = feedback[0:3]
+    #pdb.set_trace()
+    return (feedback,score)
 
 def create_db():
 
@@ -154,29 +159,46 @@ def login():
     return render_template('login.html')
 
 
+def checkSolution(exercise,user_solution):
+    print("exercise::::", exercise,"..............")
+    (feedback,score) = get_feedback(exercise, user_solution);  # "Correct!" if is_correct else "Incorrect, try again."
 
-@app.route('/resolve/<username>', methods=['GET', 'POST'])
+    print("feedback::::", feedback)
+    print("score::::", score)
+    return [feedback,score]
+    # score = 0
+    # if is_correct:
+    #     score = 100
+    # return score
+
+@app.route('/resolve/<username>', methods=['GET','POST'])
 def resolve(username):
-    exercise = get_random_question()#"2 * 2"
+    exercise = request.form.get('exercise')
+    print("exercise::::", exercise)
+    #exercise = request.form.get('exercise')
+    if exercise is None:
+        exercise = get_random_question()#"2 * 2"
    # correct_answer = 4
 
     if request.method == 'POST':
-        user_answer = request.form.get('exercise-solution', type=int)
+        user_answer = request.form.get('exercise-solution')
         print("user_answer::::", user_answer)
 
-        feedback = get_feedback(exercise, user_answer);#"Correct!" if is_correct else "Incorrect, try again."
+        feedback,score = checkSolution(exercise, user_answer)
 
-        is_correct = [ "yes" in feedback ]
-        score = 100 if is_correct else 0
 
-        return render_template('result.html', exercise=exercise, user_answer=user_answer, feedback=feedback,
-                               score=score)
+        return render_template('result.html',
+                               username = username,
+                               exercise=exercise,
+                               user_answer=user_answer,
+                               score = score,
+                               feedback = feedback )
 
     return render_template('resolve.html', username=username, exercise=exercise)
 
 @app.route('/random-question')
 def get_random_question():
-        # Gget_random_questionet the list of QR_IDs
+        # Get the list of QR_IDs
         qs_ids = [q.q_number for q in Question.query.all()]
 
         if not qs_ids:
@@ -186,6 +208,7 @@ def get_random_question():
         # Generate a random QR_ID
         random_qs_id = random.choice(qs_ids)
 
+        print("random_qs_id::::", random_qs_id)
         # Fetch the question and section with the random QR_ID
         question = Question.query.filter_by(Q_ID=random_qs_id).first()
 

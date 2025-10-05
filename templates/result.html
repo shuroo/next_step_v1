@@ -2,11 +2,12 @@
 <html>
 <body>
 
-<h2>Exercise Result</h2>
-<p>Exercise: {{ exercise }}</p>
-<p>Your Answer: {{ user_answer }}</p>
-<p>Feedback: {{ feedback }}</p>
-<p>Score: {{ score }}</p>
-
+<h2>שלום, {{ username }}!</h2>
+<h3>תוצאות התרגיל</h3>
+<p>תרגיל: {{ exercise }}</p>
+<p>תשובתך: {{ user_answer }}</p>
+<p>הערכת הבודק: {{ feedback }}</p>
+<p>ציון: {{ score }}</p>
+   <a href="{{ url_for('resolve', username=username) }}">פתור תרגיל נוסף</a>
 </body>
 </html>
