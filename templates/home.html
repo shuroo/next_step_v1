@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>{% extends "base.html" %}
+
+   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
 {% block title %}דף הבית{% endblock %}
 {% block content %}
 <h2>ברוכה הבאה!</h2>
